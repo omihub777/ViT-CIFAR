@@ -57,7 +57,9 @@ class Net(pl.LightningModule):
         img, label = batch
         out = self(img)
         loss = self.criterion(out, label)
-        acc = self.accuracy(F.softmax(out, dim=1), label)
+        # acc = self.accuracy(F.softmax(out, dim=-1), label)
+        acc = torch.eq(out.argmax(-1), label).float().mean()
+        # import IPython ; IPython.embed() ; exit(1)
         self.log("loss", loss)
         self.log("acc", acc)
         return loss
@@ -66,7 +68,8 @@ class Net(pl.LightningModule):
         img, label = batch
         out = self(img)
         loss = self.criterion(out, label)
-        acc = self.accuracy(F.softmax(out, dim=1), label)
+        # acc = self.accuracy(F.softmax(out, dim=-1), label)
+        acc = torch.eq(out.argmax(-1), label).float().mean()
         self.log("val_loss", loss)
         self.log("val_acc", acc)
         return loss
