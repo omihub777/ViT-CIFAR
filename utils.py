@@ -3,7 +3,7 @@ import torchvision.transforms as transforms
 
 
 def get_model(args):
-    if args.model_name == 'vit_s':
+    if args.model_name == 'vits':
         from vit import ViTSmall
         net = ViTSmall(args.in_c, args.num_classes, img_size=args.size, patch=args.patch)
     else:

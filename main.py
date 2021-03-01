@@ -12,18 +12,19 @@ parser.add_argument("--api-key", required=True, help="API Key for Comet.ml")
 parser.add_argument("--dataset", default="c10", type=str, help="[c10, c100]")
 parser.add_argument("--in-c", default=3, type=int)
 parser.add_argument("--num-classes", default=10, type=int)
-parser.add_argument("--model-name", default="vit_s", help="[vit_s]", type=str)
+parser.add_argument("--model-name", default="vits", help="[vits]", type=str)
 parser.add_argument("--patch", default=8, type=int)
 parser.add_argument("--batch-size", default=128, type=int)
 parser.add_argument("--eval-batch-size", default=1024, type=int)
-parser.add_argument("--lr", default=1e-1, type=float)
+parser.add_argument("--lr", default=1e-3, type=float)
 parser.add_argument("--milestones", default=[100, 150], nargs="+", type=int)
 parser.add_argument("--gamma", default=1e-1, type=float)
-parser.add_argument("--momentum", default=0.9, type=float)
+parser.add_argument("--beta1", default=0.9, type=float)
+parser.add_argument("--beta2", default=0.999, type=float)
 parser.add_argument("--off-benchmark", action="store_true")
 parser.add_argument("--max-epochs", default=200, type=int)
 parser.add_argument("--dry-run", action="store_true")
-parser.add_argument("--weight-decay", default=1e-4, type=float)
+parser.add_argument("--weight-decay", default=1e-1, type=float)
 parser.add_argument("--precision", default=16, type=int)
 
 args = parser.parse_args()
@@ -49,8 +50,9 @@ class Net(pl.LightningModule):
         return self.model(x)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.SGD(self.model.parameters(), lr=self.hparams.lr, momentum=self.hparams.momentum, weight_decay=self.hparams.weight_decay)
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.hparams.milestones, gamma=self.hparams.gamma)
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=self.hparams.lr, betas=(self.hparams.beta1, self.hparams.beta2), weight_decay=self.hparams.weight_decay)
+        # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.hparams.milestones, gamma=self.hparams.gamma)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.hparams.max_epochs, eta_min=self.hparams.lr/1e2)
         return [optimizer], [scheduler]
 
     def training_step(self, batch, batch_idx):

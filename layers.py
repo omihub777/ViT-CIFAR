@@ -30,6 +30,7 @@ class MultiHeadSelfAttention(nn.Module):
         super(MultiHeadSelfAttention, self).__init__()
         self.head = head
         self.feats = feats
+        self.sqrt_d = self.feats**0.5
 
         self.q = nn.Linear(feats, feats)
         self.k = nn.Linear(feats, feats)
@@ -44,7 +45,7 @@ class MultiHeadSelfAttention(nn.Module):
         k = self.k(x).view(b, n, self.head, self.feats//self.head).transpose(1,2)
         v = self.v(x).view(b, n, self.head, self.feats//self.head).transpose(1,2)
 
-        score = F.softmax(torch.einsum("bhif, bhjf->bhij", q, k), dim=-1) #(b,h,n,n)
+        score = F.softmax(torch.einsum("bhif, bhjf->bhij", q, k)/self.sqrt_d, dim=-1) #(b,h,n,n)
         attn = torch.einsum("bhij, bhjf->bihf", score, v) #(b,n,h,f//h)
         o = self.dropout(self.o(attn.flatten(2)))
         return o
