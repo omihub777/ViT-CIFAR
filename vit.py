@@ -25,7 +25,10 @@ class ViTSmall(nn.Module):
             TransformerEncoder(hidden),
             TransformerEncoder(hidden)
         )
-        self.fc = nn.Linear(hidden, num_classes) # for cls_token
+        self.fc = nn.Sequential(
+            nn.LayerNorm(hidden),
+            nn.Linear(hidden, num_classes) # for cls_token
+        )
 
 
     def forward(self, x):
