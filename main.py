@@ -51,8 +51,8 @@ class Net(pl.LightningModule):
 
     def configure_optimizers(self):
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.hparams.lr, betas=(self.hparams.beta1, self.hparams.beta2), weight_decay=self.hparams.weight_decay)
-        base_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=self.hparams.max_epochs, eta_min=self.hparams.lr/1e2)
-        self.scheduler = warmup_scheduler.GradualWarmupScheduler(self.optimizer, multiplier=1., total_epoch=self.hparams.warmup_epoch, after_scheduler=base_scheduler)
+        self.base_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=self.hparams.max_epochs, eta_min=self.hparams.lr/1e2)
+        self.scheduler = warmup_scheduler.GradualWarmupScheduler(self.optimizer, multiplier=1., total_epoch=self.hparams.warmup_epoch, after_scheduler=self.base_scheduler)
         return [self.optimizer], [self.scheduler]
 
     def training_step(self, batch, batch_idx):
@@ -65,7 +65,7 @@ class Net(pl.LightningModule):
         return loss
 
     def training_epoch_end(self, outputs):
-        self.log("lr", self.scheduler.get_last_lr(), on_epoch=self.current_epoch)
+        self.log("lr", self.base_scheduler.get_last_lr(), on_epoch=self.current_epoch)
 
     def validation_step(self, batch, batch_idx):
         img, label = batch
