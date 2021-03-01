@@ -18,14 +18,13 @@ parser.add_argument("--patch", default=8, type=int)
 parser.add_argument("--batch-size", default=128, type=int)
 parser.add_argument("--eval-batch-size", default=1024, type=int)
 parser.add_argument("--lr", default=1e-3, type=float)
-parser.add_argument("--milestones", default=[100, 150], nargs="+", type=int)
-parser.add_argument("--gamma", default=1e-1, type=float)
 parser.add_argument("--beta1", default=0.9, type=float)
 parser.add_argument("--beta2", default=0.999, type=float)
 parser.add_argument("--off-benchmark", action="store_true")
 parser.add_argument("--max-epochs", default=200, type=int)
 parser.add_argument("--dry-run", action="store_true")
 parser.add_argument("--weight-decay", default=1e-1, type=float)
+parser.add_argument("--warmup-epoch", default=1, type=int)
 parser.add_argument("--precision", default=16, type=int)
 
 args = parser.parse_args()
@@ -51,28 +50,27 @@ class Net(pl.LightningModule):
         return self.model(x)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=self.hparams.lr, betas=(self.hparams.beta1, self.hparams.beta2), weight_decay=self.hparams.weight_decay)
-        # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.hparams.milestones, gamma=self.hparams.gamma)
-        base_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.hparams.max_epochs, eta_min=self.hparams.lr/1e2)
-        scheduler = warmup_scheduler.GradualWarmupScheduler(optimizer, multiplier=1., total_epoch=1, after_scheduler=base_scheduler)
-        return [optimizer], [scheduler]
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.hparams.lr, betas=(self.hparams.beta1, self.hparams.beta2), weight_decay=self.hparams.weight_decay)
+        base_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=self.hparams.max_epochs, eta_min=self.hparams.lr/1e2)
+        self.scheduler = warmup_scheduler.GradualWarmupScheduler(self.optimizer, multiplier=1., total_epoch=self.hparams.warmup_epoch, after_scheduler=base_scheduler)
+        return [self.optimizer], [self.scheduler]
 
     def training_step(self, batch, batch_idx):
         img, label = batch
         out = self(img)
         loss = self.criterion(out, label)
-        # acc = self.accuracy(F.softmax(out, dim=-1), label)
         acc = torch.eq(out.argmax(-1), label).float().mean()
-        # import IPython ; IPython.embed() ; exit(1)
         self.log("loss", loss)
         self.log("acc", acc)
         return loss
+
+    def training_epoch_end(self, outputs):
+        self.log("lr", self.scheduler.get_last_lr(), on_epoch=self.current_epoch)
 
     def validation_step(self, batch, batch_idx):
         img, label = batch
         out = self(img)
         loss = self.criterion(out, label)
-        # acc = self.accuracy(F.softmax(out, dim=-1), label)
         acc = torch.eq(out.argmax(-1), label).float().mean()
         self.log("val_loss", loss)
         self.log("val_acc", acc)
