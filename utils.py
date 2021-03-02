@@ -1,6 +1,8 @@
 import torchvision
 import torchvision.transforms as transforms
 
+from AutoAugment.autoaugment import CIFAR10Policy
+
 
 def get_model(args):
     if args.model_name == 'vits':
@@ -19,6 +21,8 @@ def get_transform(args):
             transforms.RandomCrop(size=args.size, padding=args.padding),
             transforms.RandomHorizontalFlip()
         ]
+        if args.autoaugment:
+            train_transform.append(CIFAR10Policy())
 
     train_transform += [
         transforms.ToTensor(),
@@ -62,4 +66,8 @@ def get_dataset(args):
 
 def get_experiment_name(args):
     experiment_name = f"{args.model_name}_{args.dataset}"
+    if args.autoaugment:
+        experiment_name+="_aa"
+
+    print(f"Experiment:{experiment_name}")
     return experiment_name

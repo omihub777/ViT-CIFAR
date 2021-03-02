@@ -52,7 +52,7 @@ class ViTSmall(nn.Module):
 if __name__ == "__main__":
     b,c,h,w = 4, 3, 32, 32
     x = torch.randn(b, c, h, w)
-    net = ViTSmall(c, 10, h, 8)
+    net = ViTSmall(c, 10, h, 16)
     out = net(x)
     # out.mean().backward()
     torchsummary.summary(net, (c,h,w))

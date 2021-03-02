@@ -1,6 +1,10 @@
 todo.md
 data/*
+weights/*
+AutoAugment
+
 !data/.gitkeep
+!wegiths/.gitkeep
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

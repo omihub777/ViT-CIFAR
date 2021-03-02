@@ -26,6 +26,7 @@ parser.add_argument("--dry-run", action="store_true")
 parser.add_argument("--weight-decay", default=1e-1, type=float)
 parser.add_argument("--warmup-epoch", default=1, type=int)
 parser.add_argument("--precision", default=16, type=int)
+parser.add_argument("--autoaugment", action="store_true")
 
 args = parser.parse_args()
 args.benchmark = True if not args.off_benchmark else False
