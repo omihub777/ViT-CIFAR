@@ -1,8 +1,20 @@
+import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 
 from AutoAugment.autoaugment import CIFAR10Policy
+from criterions import LabelSmoothingCrossEntropyLoss
+from da import RandomCropPaste
 
+def get_criterion(args):
+    if args.criterion=="ce":
+        if args.label_smoothing:
+            criterion = LabelSmoothingCrossEntropyLoss(args.num_classes, smoothing=args.smoothing)
+        criterion = nn.CrossEntropyLoss()
+    else:
+        raise ValueError(f"{args.criterion}?")
+
+    return criterion
 
 def get_model(args):
     if args.model_name == 'vits':
@@ -16,18 +28,23 @@ def get_model(args):
 def get_transform(args):
     train_transform = []
     test_transform = []
-    if args.dataset == 'c10' or args.dataset=='c100':
-        train_transform += [
-            transforms.RandomCrop(size=args.size, padding=args.padding),
-            transforms.RandomHorizontalFlip()
-        ]
-        if args.autoaugment:
+    train_transform += [
+        transforms.RandomCrop(size=args.size, padding=args.padding),
+        transforms.RandomHorizontalFlip()
+    ]
+    if args.autoaugment:
+        if args.dataset == 'c10' or args.dataset=='c100':
             train_transform.append(CIFAR10Policy())
+        else:
+            print(f"No AutoAugment for {args.dataset}")   
 
     train_transform += [
         transforms.ToTensor(),
         transforms.Normalize(mean=args.mean, std=args.std)
     ]
+    if args.rcpaste:
+        train_transform += [RandomCropPaste(size=args.size)]
+    
     test_transform += [
         transforms.ToTensor(),
         transforms.Normalize(mean=args.mean, std=args.std)
@@ -68,6 +85,13 @@ def get_experiment_name(args):
     experiment_name = f"{args.model_name}_{args.dataset}"
     if args.autoaugment:
         experiment_name+="_aa"
-
+    if args.label_smoothing:
+        experiment_name+="_ls"
+    if args.rcpaste:
+        experiment_name+="_rc"
+    if args.cutmix:
+        experiment_name+="_cm"
+    if args.mixup:
+        experiment_name+="_mu"
     print(f"Experiment:{experiment_name}")
     return experiment_name
