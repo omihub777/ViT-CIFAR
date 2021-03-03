@@ -4,6 +4,7 @@ import comet_ml
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision
 import pytorch_lightning as pl
 import warmup_scheduler
 import numpy as np
@@ -59,6 +60,7 @@ class Net(pl.LightningModule):
             self.cutmix = CutMix(hparams.size, beta=1.)
         if hparams.mixup:
             self.mixup = MixUp(alpha=1.)
+        self.log_image_flag = False
 
     def forward(self, x):
         return self.model(x)
@@ -79,6 +81,10 @@ class Net(pl.LightningModule):
                     img, label, rand_label, lambda_ = self.mixup((img, label))
                 else:
                     img, label, rand_label, lambda_ = img, label, torch.zeros_like(label), 1.
+            if not self.log_image_flag and not self.hparams.dry_run:
+                self.log_image_flag = True
+                self._log_image(img.clone().detach().cpu())
+
             out = self.model(img)
             loss = self.criterion(out, label)*lambda_ + self.criterion(out, rand_label)*(1.-lambda_)
         else:
@@ -100,6 +106,12 @@ class Net(pl.LightningModule):
         self.log("val_loss", loss)
         self.log("val_acc", acc)
         return loss
+
+    def _log_image(self, image):
+        grid = torchvision.utils.make_grid(image, nrow=4)
+        self.logger.log_image(grid.permute(1,2,0))
+        print("[INFO] LOG IMAGE!!!")
+
 
 if __name__ == "__main__":
     experiment_name = get_experiment_name(args)
