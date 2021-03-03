@@ -5,18 +5,18 @@ import torchsummary
 
 
 class TransformerEncoder(nn.Module):
-    def __init__(self, feats:int, head:int=8):
+    def __init__(self, feats:int, head:int=8, dropout:float=0.):
         super(TransformerEncoder, self).__init__()
         self.la1 = nn.LayerNorm(feats)
-        self.msa = MultiHeadSelfAttention(feats, head=head)
+        self.msa = MultiHeadSelfAttention(feats, head=head, dropout=dropout)
         self.la2 = nn.LayerNorm(feats)
         self.mlp = nn.Sequential(
             nn.Linear(feats, feats),
             nn.GELU(),
-            nn.Dropout(0.1),
+            nn.Dropout(dropout),
             nn.Linear(feats, feats),
             nn.GELU(),
-            nn.Dropout(0.1),
+            nn.Dropout(dropout),
         )
 
     def forward(self, x):
@@ -26,7 +26,7 @@ class TransformerEncoder(nn.Module):
 
 
 class MultiHeadSelfAttention(nn.Module):
-    def __init__(self, feats:int, head:int=8):
+    def __init__(self, feats:int, head:int=8, dropout:float=0.):
         super(MultiHeadSelfAttention, self).__init__()
         self.head = head
         self.feats = feats
@@ -37,7 +37,7 @@ class MultiHeadSelfAttention(nn.Module):
         self.v = nn.Linear(feats, feats)
 
         self.o = nn.Linear(feats, feats)
-        self.dropout = nn.Dropout(0.1)
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
         b, n, f = x.size()

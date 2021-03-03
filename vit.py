@@ -5,7 +5,7 @@ import torchsummary
 from layers import TransformerEncoder
 
 class ViTSmall(nn.Module):
-    def __init__(self, in_c:int=3, num_classes:int=10, img_size:int=32, patch:int=8):
+    def __init__(self, in_c:int=3, num_classes:int=10, img_size:int=32, patch:int=8, dropout:float=0.):
         super(ViTSmall, self).__init__()
         hidden=384
 
@@ -17,13 +17,13 @@ class ViTSmall(nn.Module):
         self.cls_token = nn.Parameter(torch.randn(1, 1, hidden))
         self.pos_emb = nn.Parameter(torch.randn(1, (self.patch**2)+1, hidden))
         self.enc = nn.Sequential(
-            TransformerEncoder(hidden),
-            TransformerEncoder(hidden),
-            TransformerEncoder(hidden),
-            TransformerEncoder(hidden),
-            TransformerEncoder(hidden),
-            TransformerEncoder(hidden),
-            TransformerEncoder(hidden)
+            TransformerEncoder(hidden, dropout=dropout),
+            TransformerEncoder(hidden, dropout=dropout),
+            TransformerEncoder(hidden, dropout=dropout),
+            TransformerEncoder(hidden, dropout=dropout),
+            TransformerEncoder(hidden, dropout=dropout),
+            TransformerEncoder(hidden, dropout=dropout),
+            TransformerEncoder(hidden, dropout=dropout)
         )
         self.fc = nn.Sequential(
             nn.LayerNorm(hidden),
@@ -52,7 +52,7 @@ class ViTSmall(nn.Module):
 if __name__ == "__main__":
     b,c,h,w = 4, 3, 32, 32
     x = torch.randn(b, c, h, w)
-    net = ViTSmall(c, 10, h, 16)
+    net = ViTSmall(c, 10, h, 16, dropout=0.1)
     out = net(x)
     # out.mean().backward()
     torchsummary.summary(net, (c,h,w))

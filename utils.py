@@ -19,7 +19,7 @@ def get_criterion(args):
 def get_model(args):
     if args.model_name == 'vits':
         from vit import ViTSmall
-        net = ViTSmall(args.in_c, args.num_classes, img_size=args.size, patch=args.patch)
+        net = ViTSmall(args.in_c, args.num_classes, img_size=args.size, patch=args.patch, dropout=args.dropout)
     else:
         raise NotImplementedError(f"{model_name} is not implemented yet...")
 
