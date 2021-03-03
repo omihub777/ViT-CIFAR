@@ -40,6 +40,7 @@ parser.add_argument("--rcpaste", action="store_true")
 parser.add_argument("--cutmix", action="store_true")
 parser.add_argument("--mixup", action="store_true")
 parser.add_argument("--dropout", default=0.1, type=float)
+parser.add_argument("--head", default=8, type=int)
 args = parser.parse_args()
 args.benchmark = True if not args.off_benchmark else False
 args.gpus = torch.cuda.device_count()
