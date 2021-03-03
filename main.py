@@ -109,7 +109,7 @@ class Net(pl.LightningModule):
 
     def _log_image(self, image):
         grid = torchvision.utils.make_grid(image, nrow=4)
-        self.logger.log_image(grid.permute(1,2,0))
+        self.logger.experiment.log_image(grid.permute(1,2,0))
         print("[INFO] LOG IMAGE!!!")
 
 
