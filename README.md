@@ -14,16 +14,14 @@ $bash setup.sh
 2. **Train vit on cifar10**
 
 ```sh
-$python main.py --dataset c10 \
---label-smoothing --autoaugment
+$python main.py --dataset c10 --label-smoothing --autoaugment
 ```
 
 * **(Optinal) Train vit on cifar10 using Comet.ml**
 If you have your [Comet.ml](https://www.comet.ml/) account, this automatically logs experiments by specifing your api key.
 
 ```sh
-$python main.py --api-key [YOUR COMET API KEY] \
---dataset c10
+$python main.py --api-key [YOUR COMET API KEY] --dataset c10
 ```
 
 
