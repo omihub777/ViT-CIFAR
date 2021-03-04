@@ -2,7 +2,7 @@
 
 Unofficial PyTorch implementation for Vision Transformer[[Dosovitskiy, A.(ICLR'21)]](https://openreview.net/forum?id=YicbFdNTTy) **modified to obtain over 90% accuracy on CIFAR-10 in small number of parameters**.
 
-## Quick Start
+## 1. Quick Start
 
 1. **Install packages**
 ```sh
@@ -26,14 +26,14 @@ $python main.py --api-key [YOUR COMET API KEY] \
 
 
 
-## Result
+## 2. Results
 
 |Dataset|Acc.(%)|#Params|
 |:--:|:--:|:--:|
 |CIFAR-10|**91.01**|6.3M|
 |CIFAR-100|||
 
-## Hyperparams
+## 3. Hyperparams
 
 |Param|Value|
 |:--|:--:|
