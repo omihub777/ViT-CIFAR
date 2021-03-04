@@ -5,16 +5,16 @@ import torchsummary
 
 
 class TransformerEncoder(nn.Module):
-    def __init__(self, feats:int, head:int=8, dropout:float=0.):
+    def __init__(self, feats:int, mlp_hidden:int, head:int=8, dropout:float=0.):
         super(TransformerEncoder, self).__init__()
         self.la1 = nn.LayerNorm(feats)
         self.msa = MultiHeadSelfAttention(feats, head=head, dropout=dropout)
         self.la2 = nn.LayerNorm(feats)
         self.mlp = nn.Sequential(
-            nn.Linear(feats, feats),
+            nn.Linear(feats, mlp_hidden),
             nn.GELU(),
             nn.Dropout(dropout),
-            nn.Linear(feats, feats),
+            nn.Linear(mlp_hidden, feats),
             nn.GELU(),
             nn.Dropout(dropout),
         )

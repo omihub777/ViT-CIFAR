@@ -17,11 +17,20 @@ def get_criterion(args):
     return criterion
 
 def get_model(args):
-    if args.model_name == 'vits':
-        from vit import ViTSmall
-        net = ViTSmall(args.in_c, args.num_classes, img_size=args.size, patch=args.patch, dropout=args.dropout, head=args.head)
+    if args.model_name == 'vit':
+        from vit import ViT
+        net = ViT(
+            args.in_c, 
+            args.num_classes, 
+            img_size=args.size, 
+            patch=args.patch, 
+            dropout=args.dropout, 
+            mlp_hidden=args.mlp_hidden,
+            num_layers=args.num_layers,
+            hidden=args.hidden,
+            head=args.head)
     else:
-        raise NotImplementedError(f"{model_name} is not implemented yet...")
+        raise NotImplementedError(f"{args.model_name} is not implemented yet...")
 
     return net
 

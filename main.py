@@ -18,7 +18,7 @@ parser.add_argument("--api-key", required=True, help="API Key for Comet.ml")
 parser.add_argument("--dataset", default="c10", type=str, help="[c10, c100]")
 parser.add_argument("--in-c", default=3, type=int)
 parser.add_argument("--num-classes", default=10, type=int)
-parser.add_argument("--model-name", default="vits", help="[vits]", type=str)
+parser.add_argument("--model-name", default="vit", help="[vit]", type=str)
 parser.add_argument("--patch", default=8, type=int)
 parser.add_argument("--batch-size", default=128, type=int)
 parser.add_argument("--eval-batch-size", default=1024, type=int)
@@ -40,13 +40,19 @@ parser.add_argument("--rcpaste", action="store_true")
 parser.add_argument("--cutmix", action="store_true")
 parser.add_argument("--mixup", action="store_true")
 parser.add_argument("--dropout", default=0.1, type=float)
-parser.add_argument("--head", default=8, type=int)
+parser.add_argument("--head", default=12, type=int)
+parser.add_argument("--num-layers", default=7, type=int)
+parser.add_argument("--hidden", default=384, type=int)
+parser.add_argument("--mlp-hidden", default=None, type=int)
 args = parser.parse_args()
 args.benchmark = True if not args.off_benchmark else False
 args.gpus = torch.cuda.device_count()
 args.num_workers = 4*args.gpus if args.gpus else 8
 if not args.gpus:
     args.precision=32
+if args.mlp_hidden is None:
+    args.mlp_hidden = args.hidden*4
+    print(f"[INFO] Set default value to mlp_hidden: {args.mlp_hidden}(={args.hidden}*4)")
 
 train_ds, test_ds = get_dataset(args)
 train_dl = torch.utils.data.DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory=True)
