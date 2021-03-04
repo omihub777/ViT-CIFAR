@@ -6,6 +6,8 @@ Unofficial PyTorch implementation for Vision Transformer[[Dosovitskiy, A.(ICLR'2
 
 1. **Install packages**
 ```sh
+$git clone https://github.com/omihub777/ViT-CIFAR.git
+$cd ViT-CIFAR/
 $bash setup.sh
 ```
 
