@@ -13,7 +13,7 @@ from utils import get_model, get_dataset, get_experiment_name, get_criterion
 from da import CutMix, MixUp
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--api-key", required=True, help="API Key for Comet.ml")
+parser.add_argument("--api-key", help="API Key for Comet.ml")
 
 parser.add_argument("--dataset", default="c10", type=str, help="[c10, c100]")
 parser.add_argument("--in-c", default=3, type=int)
@@ -29,7 +29,7 @@ parser.add_argument("--beta2", default=0.999, type=float)
 parser.add_argument("--off-benchmark", action="store_true")
 parser.add_argument("--max-epochs", default=200, type=int)
 parser.add_argument("--dry-run", action="store_true")
-parser.add_argument("--weight-decay", default=1e-1, type=float)
+parser.add_argument("--weight-decay", default=5e-5, type=float)
 parser.add_argument("--warmup-epoch", default=5, type=int)
 parser.add_argument("--precision", default=16, type=int)
 parser.add_argument("--autoaugment", action="store_true")
@@ -39,20 +39,24 @@ parser.add_argument("--smoothing", default=0.1, type=float)
 parser.add_argument("--rcpaste", action="store_true")
 parser.add_argument("--cutmix", action="store_true")
 parser.add_argument("--mixup", action="store_true")
-parser.add_argument("--dropout", default=0.1, type=float)
+parser.add_argument("--dropout", default=0.0, type=float)
 parser.add_argument("--head", default=12, type=int)
 parser.add_argument("--num-layers", default=7, type=int)
 parser.add_argument("--hidden", default=384, type=int)
-parser.add_argument("--mlp-hidden", default=None, type=int)
+parser.add_argument("--mlp-hidden", default=384, type=int)
+parser.add_argument("--seed", default=42, type=int)
+parser.add_argument("--project-name", default="VisionTransformer")
 args = parser.parse_args()
+torch.manual_seed(args.seed)
+np.random.seed(args.seed)
 args.benchmark = True if not args.off_benchmark else False
 args.gpus = torch.cuda.device_count()
 args.num_workers = 4*args.gpus if args.gpus else 8
 if not args.gpus:
     args.precision=32
-if args.mlp_hidden is None:
-    args.mlp_hidden = args.hidden*4
-    print(f"[INFO] Set default value to mlp_hidden: {args.mlp_hidden}(={args.hidden}*4)")
+
+if args.mlp_hidden != args.hidden*4:
+    print(f"[INFO] In original paper, mlp_hidden(CURRENT:{args.mlp_hidden}) is set to: {args.hidden*4}(={args.hidden}*4)")
 
 train_ds, test_ds = get_dataset(args)
 train_dl = torch.utils.data.DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory=True)
@@ -124,15 +128,25 @@ class Net(pl.LightningModule):
 if __name__ == "__main__":
     experiment_name = get_experiment_name(args)
     print(experiment_name)
-    logger = pl.loggers.CometLogger(
-        api_key=args.api_key,
-        save_dir=".",
-        project_name="VisionTransformer",
-        experiment_name=experiment_name
-    )
+    if args.api_key is None:
+        print("[INFO] Log with CSV")
+        logger = pl.loggers.CSVLogger(
+            save_dir="logs",
+            name=experiment_name
+        )
+        refresh_rate = 1
+    else:
+        print("[INFO] Log with Comet.ml!")
+        logger = pl.loggers.CometLogger(
+            api_key=args.api_key,
+            save_dir="logs",
+            project_name=args.project_name,
+            experiment_name=experiment_name
+        )
+        refresh_rate = 0
     args.api_key = None # Initialize API Key for privacy.
     net = Net(args)
-    trainer = pl.Trainer(precision=args.precision,fast_dev_run=args.dry_run, gpus=args.gpus, benchmark=args.benchmark, logger=logger, max_epochs=args.max_epochs, weights_summary="full", progress_bar_refresh_rate=0)
+    trainer = pl.Trainer(precision=args.precision,fast_dev_run=args.dry_run, gpus=args.gpus, benchmark=args.benchmark, logger=logger, max_epochs=args.max_epochs, weights_summary="full", progress_bar_refresh_rate=refresh_rate)
     trainer.fit(model=net, train_dataloader=train_dl, val_dataloaders=test_dl)
     if not args.dry_run:
         model_path = f"weights/{experiment_name}.pth"
