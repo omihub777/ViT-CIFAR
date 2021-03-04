@@ -91,15 +91,16 @@ class Net(pl.LightningModule):
                     img, label, rand_label, lambda_ = self.mixup((img, label))
                 else:
                     img, label, rand_label, lambda_ = img, label, torch.zeros_like(label), 1.
-            if not self.log_image_flag and not self.hparams.dry_run:
-                self.log_image_flag = True
-                self._log_image(img.clone().detach().cpu())
-
             out = self.model(img)
             loss = self.criterion(out, label)*lambda_ + self.criterion(out, rand_label)*(1.-lambda_)
         else:
             out = self(img)
             loss = self.criterion(out, label)
+
+        if not self.log_image_flag and not self.hparams.dry_run:
+            self.log_image_flag = True
+            self._log_image(img.clone().detach().cpu())
+
         acc = torch.eq(out.argmax(-1), label).float().mean()
         self.log("loss", loss)
         self.log("acc", acc)
