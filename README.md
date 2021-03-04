@@ -1,6 +1,6 @@
 # ViT-CIFAR
 
-Unofficial PyTorch implementation for Vision Transformer[[Dosovitskiy, A.(ICLR'21)]](https://openreview.net/forum?id=YicbFdNTTy) **modified to obtain over 90% accuracy on CIFAR-10 with small number of parameters (= 6.3M)**.
+Unofficial PyTorch implementation for Vision Transformer[[Dosovitskiy, A.(ICLR'21)]](https://openreview.net/forum?id=YicbFdNTTy) **modified to obtain over 90% accuracy FROM SCRATCH on CIFAR-10 with small number of parameters (= 6.3M)**.
 
 ## 1. Quick Start
 
@@ -11,13 +11,13 @@ $cd ViT-CIFAR/
 $bash setup.sh
 ```
 
-2. **Train vit on cifar10**
+2. **Train ViT on cifar10**
 
 ```sh
 $python main.py --dataset c10 --label-smoothing --autoaugment
 ```
 
-* **(Optinal) Train vit on cifar10 using Comet.ml**
+* **(Optinal) Train ViT on cifar10 using Comet.ml**  
 If you have your [Comet.ml](https://www.comet.ml/) account, this automatically logs experiments by specifying your api key.
 
 ```sh
@@ -28,13 +28,14 @@ $python main.py --api-key [YOUR COMET API KEY] --dataset c10
 
 ## 2. Results
 
-|Dataset|Acc.(%)|
-|:--:|:--:|
-|CIFAR-10|**91.01**|
-|CIFAR-100||
-|SVHN||
+|Dataset|Acc.(%)|Time(hh:mm:ss)|
+|:--:|:--:|:--:|
+|CIFAR-10|**90.92**|02:14:22|
+|CIFAR-100|**66.54**|02:14:17|
+|SVHN|||
 
 * Number of parameters: 6.3 M
+* Device: V100 (single GPU)
 
 ## 3. Hyperparams
 
@@ -54,3 +55,7 @@ $python main.py --api-key [YOUR COMET API KEY] --dataset c10
 |Layers|7|
 |Hidden|384|
 |MLP Hidden|384|
+
+## 4. Side notes
+* Longer training gives performance boost.
+* More extensive hyperparam search(e.g. LR/Weight Decay/#heads) definitely gives performance gain.

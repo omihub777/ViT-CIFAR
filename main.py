@@ -71,7 +71,6 @@ class Net(pl.LightningModule):
         if hparams.mixup:
             self.mixup = MixUp(alpha=1.)
         self.log_image_flag = hparams.api_key is None
-        import IPython ; IPython.embed() ; exit(1)
 
     def forward(self, x):
         return self.model(x)
