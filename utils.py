@@ -120,5 +120,7 @@ def get_experiment_name(args):
         experiment_name+="_cm"
     if args.mixup:
         experiment_name+="_mu"
+    if args.off_cls_token:
+        experiment_name+="_gap"
     print(f"Experiment:{experiment_name}")
     return experiment_name
