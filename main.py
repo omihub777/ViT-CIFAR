@@ -65,7 +65,8 @@ test_dl = torch.utils.data.DataLoader(test_ds, batch_size=args.eval_batch_size, 
 class Net(pl.LightningModule):
     def __init__(self, hparams):
         super(Net, self).__init__()
-        self.hparams = hparams
+        # self.hparams = hparams
+        self.hparams.update(vars(hparams))
         self.model = get_model(hparams)
         self.criterion = get_criterion(args)
         if hparams.cutmix:
