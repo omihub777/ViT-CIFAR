@@ -50,6 +50,15 @@ class MultiHeadSelfAttention(nn.Module):
         o = self.dropout(self.o(attn.flatten(2)))
         return o
 
+class MultiHeadDepthwiseSelfAttention(nn.Module):
+    def __init__(self, feats:int, head:int=8, dropout:float=0):
+        super(MultiHeadDepthwiseSelfAttention, self).__init__()
+        ...
+
+    def forward(self, x):
+        
+        ...
+
 if __name__=="__main__":
     b,n,f = 4, 16, 128
     x = torch.randn(b,n,f)

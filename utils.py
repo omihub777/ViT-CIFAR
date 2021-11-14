@@ -28,7 +28,9 @@ def get_model(args):
             mlp_hidden=args.mlp_hidden,
             num_layers=args.num_layers,
             hidden=args.hidden,
-            head=args.head)
+            head=args.head,
+            is_cls_token=args.is_cls_token
+            )
     else:
         raise NotImplementedError(f"{args.model_name} is not implemented yet...")
 

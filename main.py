@@ -42,6 +42,7 @@ parser.add_argument("--head", default=12, type=int)
 parser.add_argument("--num-layers", default=7, type=int)
 parser.add_argument("--hidden", default=384, type=int)
 parser.add_argument("--mlp-hidden", default=384, type=int)
+parser.add_argument("--off-cls-token", action="store_true")
 parser.add_argument("--seed", default=42, type=int)
 parser.add_argument("--project-name", default="VisionTransformer")
 args = parser.parse_args()
@@ -50,6 +51,7 @@ np.random.seed(args.seed)
 args.benchmark = True if not args.off_benchmark else False
 args.gpus = torch.cuda.device_count()
 args.num_workers = 4*args.gpus if args.gpus else 8
+args.is_cls_token = True if not args.off_cls_token else False
 if not args.gpus:
     args.precision=32
 
