@@ -2,7 +2,7 @@ import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 
-from AutoAugment.autoaugment import CIFAR10Policy, SVHNPolicy
+from autoaugment import CIFAR10Policy, SVHNPolicy
 from criterions import LabelSmoothingCrossEntropyLoss
 from da import RandomCropPaste
 

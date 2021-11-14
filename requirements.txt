@@ -1,9 +1,9 @@
-torch==1.7.1
-torchvision==0.8.2
-torchsummary==1.5.1
+torch
+torchvision
+torchsummary
 pytorch-lightning==1.2.1
 comet-ml==3.3.5
-matplotlib==3.3.4
-numpy==1.19.5
-pandas==1.1.5
-scipy==1.5.4
+matplotlib
+numpy
+pandas
+scipy
