@@ -10,7 +10,8 @@ def get_criterion(args):
     if args.criterion=="ce":
         if args.label_smoothing:
             criterion = LabelSmoothingCrossEntropyLoss(args.num_classes, smoothing=args.smoothing)
-        criterion = nn.CrossEntropyLoss()
+        else:
+            criterion = nn.CrossEntropyLoss()
     else:
         raise ValueError(f"{args.criterion}?")
 
